@@ -1,8 +1,8 @@
-# Install script for directory: /home/lijianglong/C++ 编程学习/cmake/webRTC/nsagc/WebRtcMoudle
+# Install script for directory: /home/fengmao/cowa/webRTCtest/WebRtcMoudle
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
-  set(CMAKE_INSTALL_PREFIX "/usr")
+  set(CMAKE_INSTALL_PREFIX "/usr/local")
 endif()
 string(REGEX REPLACE "/$" "" CMAKE_INSTALL_PREFIX "${CMAKE_INSTALL_PREFIX}")
 
@@ -44,7 +44,7 @@ if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_
          FILE "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/lib/libwebRTC.so"
          RPATH "")
   endif()
-  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib" TYPE SHARED_LIBRARY FILES "/home/lijianglong/C++ 编程学习/cmake/webRTC/nsagc/WebRtcMoudle/build/libwebRTC.so")
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib" TYPE SHARED_LIBRARY FILES "/home/fengmao/cowa/webRTCtest/WebRtcMoudle/build/libwebRTC.so")
   if(EXISTS "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/lib/libwebRTC.so" AND
      NOT IS_SYMLINK "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/lib/libwebRTC.so")
     if(CMAKE_INSTALL_DO_STRIP)
@@ -54,40 +54,43 @@ if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_
 endif()
 
 if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
-  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib" TYPE STATIC_LIBRARY FILES "/home/lijianglong/C++ 编程学习/cmake/webRTC/nsagc/WebRtcMoudle/build/libwebRTC.a")
+endif()
+
+if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib" TYPE STATIC_LIBRARY FILES "/home/fengmao/cowa/webRTCtest/WebRtcMoudle/build/libwebRTC.a")
 endif()
 
 if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
   file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/include/webRtcModule" TYPE FILE FILES
-    "/home/lijianglong/C++ 编程学习/cmake/webRTC/nsagc/WebRtcMoudle/analog_agc.h"
-    "/home/lijianglong/C++ 编程学习/cmake/webRTC/nsagc/WebRtcMoudle/complex_fft_tables.h"
-    "/home/lijianglong/C++ 编程学习/cmake/webRTC/nsagc/WebRtcMoudle/cpu_features_wrapper.h"
-    "/home/lijianglong/C++ 编程学习/cmake/webRTC/nsagc/WebRtcMoudle/defines.h"
-    "/home/lijianglong/C++ 编程学习/cmake/webRTC/nsagc/WebRtcMoudle/digital_agc.h"
-    "/home/lijianglong/C++ 编程学习/cmake/webRTC/nsagc/WebRtcMoudle/fft4g.h"
-    "/home/lijianglong/C++ 编程学习/cmake/webRTC/nsagc/WebRtcMoudle/gain_control.h"
-    "/home/lijianglong/C++ 编程学习/cmake/webRTC/nsagc/WebRtcMoudle/noise_suppression.h"
-    "/home/lijianglong/C++ 编程学习/cmake/webRTC/nsagc/WebRtcMoudle/noise_suppression_x.h"
-    "/home/lijianglong/C++ 编程学习/cmake/webRTC/nsagc/WebRtcMoudle/ns_core.h"
-    "/home/lijianglong/C++ 编程学习/cmake/webRTC/nsagc/WebRtcMoudle/nsx_core.h"
-    "/home/lijianglong/C++ 编程学习/cmake/webRTC/nsagc/WebRtcMoudle/nsx_defines.h"
-    "/home/lijianglong/C++ 编程学习/cmake/webRTC/nsagc/WebRtcMoudle/real_fft.h"
-    "/home/lijianglong/C++ 编程学习/cmake/webRTC/nsagc/WebRtcMoudle/resample_by_2_internal.h"
-    "/home/lijianglong/C++ 编程学习/cmake/webRTC/nsagc/WebRtcMoudle/ring_buffer.h"
-    "/home/lijianglong/C++ 编程学习/cmake/webRTC/nsagc/WebRtcMoudle/signal_processing_library.h"
-    "/home/lijianglong/C++ 编程学习/cmake/webRTC/nsagc/WebRtcMoudle/spl_inl.h"
-    "/home/lijianglong/C++ 编程学习/cmake/webRTC/nsagc/WebRtcMoudle/typedefs.h"
-    "/home/lijianglong/C++ 编程学习/cmake/webRTC/nsagc/WebRtcMoudle/windows_private.h"
-    "/home/lijianglong/C++ 编程学习/cmake/webRTC/nsagc/WebRtcMoudle/aec_core.h"
-    "/home/lijianglong/C++ 编程学习/cmake/webRTC/nsagc/WebRtcMoudle/aec_core_internal.h"
-    "/home/lijianglong/C++ 编程学习/cmake/webRTC/nsagc/WebRtcMoudle/aec_rdft.h"
-    "/home/lijianglong/C++ 编程学习/cmake/webRTC/nsagc/WebRtcMoudle/aec_resampler.h"
-    "/home/lijianglong/C++ 编程学习/cmake/webRTC/nsagc/WebRtcMoudle/echo_cancellation.h"
-    "/home/lijianglong/C++ 编程学习/cmake/webRTC/nsagc/WebRtcMoudle/echo_cancellation_internal.h"
-    "/home/lijianglong/C++ 编程学习/cmake/webRTC/nsagc/WebRtcMoudle/delay_estimator.h"
-    "/home/lijianglong/C++ 编程学习/cmake/webRTC/nsagc/WebRtcMoudle/delay_estimator_internal.h"
-    "/home/lijianglong/C++ 编程学习/cmake/webRTC/nsagc/WebRtcMoudle/delay_estimator_wrapper.h"
-    "/home/lijianglong/C++ 编程学习/cmake/webRTC/nsagc/WebRtcMoudle/ring_buffer.h"
+    "/home/fengmao/cowa/webRTCtest/WebRtcMoudle/analog_agc.h"
+    "/home/fengmao/cowa/webRTCtest/WebRtcMoudle/complex_fft_tables.h"
+    "/home/fengmao/cowa/webRTCtest/WebRtcMoudle/cpu_features_wrapper.h"
+    "/home/fengmao/cowa/webRTCtest/WebRtcMoudle/defines.h"
+    "/home/fengmao/cowa/webRTCtest/WebRtcMoudle/digital_agc.h"
+    "/home/fengmao/cowa/webRTCtest/WebRtcMoudle/fft4g.h"
+    "/home/fengmao/cowa/webRTCtest/WebRtcMoudle/gain_control.h"
+    "/home/fengmao/cowa/webRTCtest/WebRtcMoudle/noise_suppression.h"
+    "/home/fengmao/cowa/webRTCtest/WebRtcMoudle/noise_suppression_x.h"
+    "/home/fengmao/cowa/webRTCtest/WebRtcMoudle/ns_core.h"
+    "/home/fengmao/cowa/webRTCtest/WebRtcMoudle/nsx_core.h"
+    "/home/fengmao/cowa/webRTCtest/WebRtcMoudle/nsx_defines.h"
+    "/home/fengmao/cowa/webRTCtest/WebRtcMoudle/real_fft.h"
+    "/home/fengmao/cowa/webRTCtest/WebRtcMoudle/resample_by_2_internal.h"
+    "/home/fengmao/cowa/webRTCtest/WebRtcMoudle/ring_buffer.h"
+    "/home/fengmao/cowa/webRTCtest/WebRtcMoudle/signal_processing_library.h"
+    "/home/fengmao/cowa/webRTCtest/WebRtcMoudle/spl_inl.h"
+    "/home/fengmao/cowa/webRTCtest/WebRtcMoudle/typedefs.h"
+    "/home/fengmao/cowa/webRTCtest/WebRtcMoudle/windows_private.h"
+    "/home/fengmao/cowa/webRTCtest/WebRtcMoudle/aec_core.h"
+    "/home/fengmao/cowa/webRTCtest/WebRtcMoudle/aec_core_internal.h"
+    "/home/fengmao/cowa/webRTCtest/WebRtcMoudle/aec_rdft.h"
+    "/home/fengmao/cowa/webRTCtest/WebRtcMoudle/aec_resampler.h"
+    "/home/fengmao/cowa/webRTCtest/WebRtcMoudle/echo_cancellation.h"
+    "/home/fengmao/cowa/webRTCtest/WebRtcMoudle/echo_cancellation_internal.h"
+    "/home/fengmao/cowa/webRTCtest/WebRtcMoudle/delay_estimator.h"
+    "/home/fengmao/cowa/webRTCtest/WebRtcMoudle/delay_estimator_internal.h"
+    "/home/fengmao/cowa/webRTCtest/WebRtcMoudle/delay_estimator_wrapper.h"
+    "/home/fengmao/cowa/webRTCtest/WebRtcMoudle/ring_buffer.h"
     )
 endif()
 
@@ -99,5 +102,5 @@ endif()
 
 string(REPLACE ";" "\n" CMAKE_INSTALL_MANIFEST_CONTENT
        "${CMAKE_INSTALL_MANIFEST_FILES}")
-file(WRITE "/home/lijianglong/C++ 编程学习/cmake/webRTC/nsagc/WebRtcMoudle/build/${CMAKE_INSTALL_MANIFEST}"
+file(WRITE "/home/fengmao/cowa/webRTCtest/WebRtcMoudle/build/${CMAKE_INSTALL_MANIFEST}"
      "${CMAKE_INSTALL_MANIFEST_CONTENT}")

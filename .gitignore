@@ -1,0 +1,13 @@
+build/*
+*.json
+WebRtcMoudle/build/*
+WebRtcMoudle/build/cmake_install.cmake
+WebRtcMoudle/build/cmake_install.cmake
+WebRtcMoudle/build/CMakeCache.txt
+WebRtcMoudle/build/install_manifest.txt
+WebRtcMoudle/build/libwebRTC.so
+WebRtcMoudle/build/Makefile
+build/cmake_install.cmake
+build/CMakeCache.txt
+build/Makefile
+build/webRTCtest
