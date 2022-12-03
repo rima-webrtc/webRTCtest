@@ -65,7 +65,7 @@ class ANSProcess : public IPreProcesss {
       short shInL[160] = {0}, shInH[160] = {0};
       short shOutL[160] = {0}, shOutH[160] = {0};
       short shBufferOut[320] = {0};
-      int nFrames=in_len/640;
+      int nFrames=640;
       for (int i = 0; i < in_len / nFrames; i++) {
         memcpy(shBufferIn, ansIn, 640);
 
@@ -75,8 +75,8 @@ class ANSProcess : public IPreProcesss {
           WebRtcSpl_SynthesisQMF(shOutL, shOutH, 160, shBufferOut, Synthesis_state1, Synthesis_state12);
         }
         memcpy(ansOut, shBufferOut, 640);
-        ansIn+=nFrames*i*640;
-        ansOut+=nFrames*i*640;
+        ansIn+=640;
+        ansOut+=640;
       }
     } else {
       std::cout << "need to be finished. ns,nsx only support 8hz,16hz,32hz.every time do with 10ms.it is one frame "
@@ -130,15 +130,15 @@ class ReSamplerProcess : public IPreProcesss {
       samplesIn += batch_in;
       samplesOut += len;
     }
-    //if (remained != 0) {
-    //   const int max_samples = 1920;
-    //   int16_t samplePatchIn[max_samples] = {0};
-    //   int16_t samplePatchOut[max_samples] = {0};
-    //   memcpy(samplePatchIn, samplesIn, remained * sizeof(int16_t));
-    //   _rs.Push(samplePatchIn, batch_in, samplePatchOut, batch_out, len);
-    //   memcpy(samplesOut, samplePatchOut, (remained * 2) * sizeof(int16_t));
+    if (remained != 0) {
+      const int max_samples = 1920;
+      int16_t samplePatchIn[max_samples] = {0};
+      int16_t samplePatchOut[max_samples] = {0};
+      memcpy(samplePatchIn, samplesIn, remained * sizeof(int16_t));
+      _rs.Push(samplePatchIn, batch_in, samplePatchOut, batch_out, len);
+      memcpy(samplesOut, samplePatchOut, (remained * 2) * sizeof(int16_t));
 
-    // }
+    }
 
     return expect_len;
   }

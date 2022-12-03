@@ -51,8 +51,8 @@ void resampler32NSX(char* szFileIn, char* szFileOut, char* szFileOut2, int nSamp
   option2.sampleRate_in = 32000;
 
   ProcessOption option3;
-  option3.sampleRate_in = 32000;
-  option3.sampleRate_out = 48000;
+  option2.sampleRate_in = 32000;
+  option2.sampleRate_out = 48000;
   auto resampler_in= createReSamplerProcess(option);
   auto resampler_out = createReSamplerProcess(option3);
   auto ans = createANSProcess(option2);
@@ -68,15 +68,15 @@ void resampler32NSX(char* szFileIn, char* szFileOut, char* szFileOut2, int nSamp
     if (gcount_size < 960) { memset(in_buffer + gcount_size, 0, 960 - gcount_size); }
 
     res = resampler_in->process(in_buffer, in_size, resample_buffer, ans_size);
-    std::cout << "process index: " << index++ << " insize: " << in_size << " outsize:" << ans_size << " res: " << res
-             << std::endl;
+    //std::cout << "process index: " << index++ << " insize: " << in_size << " outsize:" << ans_size << " res: " << res
+     //         << std::endl;
 
     res = ans->process(resample_buffer, ans_size, ans_buffer, ans_size);
-        out_stream.write((char*)ans_buffer, gcount_size*32/48);
-    res = resampler_out->process(ans_buffer, ans_size, out_buffer, in_size);
 
-    std::cout << "process index: " << index++ << " insize: " << ans_size << " outsize:" << in_size << " res: " << res
-             << std::endl;
+    res = resampler_out->process(out_buffer, ans_size, out_buffer, in_size);
+
+    //std::cout << "process index: " << index++ << " insize: " << ans_size << " outsize:" << in_size << " res: " << res
+     //         << std::endl;
 
     out_stream2.write((char*)out_buffer, gcount_size);
   } while (in_stream && !in_stream.eof());
