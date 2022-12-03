@@ -21,3 +21,5 @@ build/Makefile
 build/webRTCtest
 WebRtcMoudle/build/cmake_install.cmake
 WebRtcMoudle/build/libwebRTC.so
+build/webRTCtest
+build/webRTCtest

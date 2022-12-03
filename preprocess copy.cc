@@ -56,21 +56,28 @@ class ANSProcess : public IPreProcesss {
   /// @param out_len every output frame length
   /// @return
   size_t process(void const* input, size_t in_len, void* output, size_t out_len) override {
+
+    int16_t* ansIn = (int16_t*)input;
+    int16_t* ansOut = (int16_t*)output;
     // 32hz will be cut to 2 16000 to handle.
     if (_option.sampleRate_in == 32000) {
       short shBufferIn[320] = {0};
       short shInL[160] = {0}, shInH[160] = {0};
       short shOutL[160] = {0}, shOutH[160] = {0};
       short shBufferOut[320] = {0};
-      memcpy(shBufferIn, input, in_len);
+      int nFrames=in_len/640;
+      for (int i = 0; i < in_len / nFrames; i++) {
+        memcpy(shBufferIn, ansIn, 640);
 
-      WebRtcSpl_AnalysisQMF(shBufferIn, 320, shInL, shInH, filter_state1, filter_state12);
+        WebRtcSpl_AnalysisQMF(shBufferIn, 320, shInL, shInH, filter_state1, filter_state12);
 
-      if (0 == WebRtcNsx_Process(pNS_inst, shInL, shInH, shOutL, shOutH)) {
-        WebRtcSpl_SynthesisQMF(shOutL, shOutH, 160, shBufferOut, Synthesis_state1, Synthesis_state12);
+        if (0 == WebRtcNsx_Process(pNS_inst, shInL, shInH, shOutL, shOutH)) {
+          WebRtcSpl_SynthesisQMF(shOutL, shOutH, 160, shBufferOut, Synthesis_state1, Synthesis_state12);
+        }
+        memcpy(ansOut, shBufferOut, 640);
+        ansIn+=nFrames*i*640;
+        ansOut+=nFrames*i*640;
       }
-      memcpy(output, shBufferOut, out_len);
-
     } else {
       std::cout << "need to be finished. ns,nsx only support 8hz,16hz,32hz.every time do with 10ms.it is one frame "
                 << std::endl;
