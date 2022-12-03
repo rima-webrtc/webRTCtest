@@ -10,5 +10,5 @@ include_directories(${PROJECT_SOURCE_DIR})
 
 add_executable(webRTCtest  ${main_srs})
 
-TARGET_LINK_LIBRARIES(webRTCtest ${PROJECT_SOURCE_DIR}/WebRtcMoudle/build/libwebRTC.so)
+TARGET_LINK_LIBRARIES(webRTCtest ${PROJECT_SOURCE_DIR}/WebRtcMoudle/build/libwebRTC.a)
 TARGET_LINK_LIBRARIES(webRTCtest libpthread.so)

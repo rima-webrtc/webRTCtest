@@ -150,6 +150,33 @@ WebRtcAudioTest.cpp.s:
 	$(MAKE) -f CMakeFiles/webRTCtest.dir/build.make CMakeFiles/webRTCtest.dir/WebRtcAudioTest.cpp.s
 .PHONY : WebRtcAudioTest.cpp.s
 
+resampler.o: resampler.cc.o
+
+.PHONY : resampler.o
+
+# target to build an object file
+resampler.cc.o:
+	$(MAKE) -f CMakeFiles/webRTCtest.dir/build.make CMakeFiles/webRTCtest.dir/resampler.cc.o
+.PHONY : resampler.cc.o
+
+resampler.i: resampler.cc.i
+
+.PHONY : resampler.i
+
+# target to preprocess a source file
+resampler.cc.i:
+	$(MAKE) -f CMakeFiles/webRTCtest.dir/build.make CMakeFiles/webRTCtest.dir/resampler.cc.i
+.PHONY : resampler.cc.i
+
+resampler.s: resampler.cc.s
+
+.PHONY : resampler.s
+
+# target to generate assembly for a file
+resampler.cc.s:
+	$(MAKE) -f CMakeFiles/webRTCtest.dir/build.make CMakeFiles/webRTCtest.dir/resampler.cc.s
+.PHONY : resampler.cc.s
+
 stdafx.o: stdafx.cpp.o
 
 .PHONY : stdafx.o
@@ -189,6 +216,9 @@ help:
 	@echo "... WebRtcAudioTest.o"
 	@echo "... WebRtcAudioTest.i"
 	@echo "... WebRtcAudioTest.s"
+	@echo "... resampler.o"
+	@echo "... resampler.i"
+	@echo "... resampler.s"
 	@echo "... stdafx.o"
 	@echo "... stdafx.i"
 	@echo "... stdafx.s"

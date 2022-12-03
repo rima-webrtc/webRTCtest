@@ -1,6 +1,6 @@
 build/*
 *.json
-WebRtcMoudle/build/*
+WebRtcMoudle/build
 WebRtcMoudle/build/cmake_install.cmake
 WebRtcMoudle/build/cmake_install.cmake
 WebRtcMoudle/build/CMakeCache.txt
@@ -11,3 +11,13 @@ build/cmake_install.cmake
 build/CMakeCache.txt
 build/Makefile
 build/webRTCtest
+WebRtcMoudle/build/cmake_install.cmake
+WebRtcMoudle/build/libwebRTC.so
+build/Makefile
+build/webRTCtest
+build/Makefile
+build/webRTCtest
+build/Makefile
+build/webRTCtest
+WebRtcMoudle/build/cmake_install.cmake
+WebRtcMoudle/build/libwebRTC.so

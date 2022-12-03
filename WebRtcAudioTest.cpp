@@ -6,7 +6,7 @@
 #include <stdlib.h>
 #include <string.h>
 // #include <Windows.h>
-
+#include <iostream>
 #include <memory>
 
 #include "./WebRtcMoudle/signal_processing_library.h"
@@ -108,7 +108,7 @@ class IPreProcesss {
 class ReSamplerProcess : public IPreProcesss {
   ProcessOption _option;
   Resampler _rs;
-  const int HZ = 8000;
+  const int HZ = 48000;
   const int CHANNELS = 2;
 
  public:
@@ -124,7 +124,7 @@ class ReSamplerProcess : public IPreProcesss {
     size_t samples_in = in_len / 2;
     size_t count_in = (samples_in / batch_in);
     size_t remained = samples_in - (batch_in * count_in);
-    size_t expect_len = (size_t)(samples_in * 2);  // double samplerate and double channels.
+    size_t expect_len = (size_t)(samples_in * 32/48);  // double samplerate and double channels.
     int16_t* samplesIn = (int16_t*)input;
     int16_t* samplesOut = (int16_t*)output;
 
@@ -144,12 +144,12 @@ class ReSamplerProcess : public IPreProcesss {
       memcpy(samplesOut, samplePatchOut, (remained * 2) * sizeof(int16_t));
     }
 
-    // double channels
-    samplesOut = (int16_t*)output;
-    for (int j = expect_len - 1; j > 0; j--) {
-      samplesOut[2 * j] = samplesOut[j];
-      samplesOut[2 * j - 1] = samplesOut[j];
-    }
+    // // double channels
+    // samplesOut = (int16_t*)output;
+    // for (int j = expect_len - 1; j > 0; j--) {
+    //   samplesOut[2 * j] = samplesOut[j];
+    //   samplesOut[2 * j - 1] = samplesOut[j];
+    // }
     // 10
     // 9 18 <- 9 17 <- 9
     // 8 16 <- 8 15 <- 8
@@ -928,425 +928,170 @@ std::unique_ptr<IPreProcesss> createReSamplerProcess(ProcessOption const& option
 }
 
 
-void NoiseSuppression32(char *szFileIn,char *szFileOut,int nSample,int nMode)
-{
-	int nRet = 0;
-	NsHandle *pNS_inst = NULL;
-
-	FILE *fpIn = NULL;
-	FILE *fpOut = NULL;
-
-	char *pInBuffer =NULL;
-	char *pOutBuffer = NULL;
-
-	do
-	{
-		int i = 0;
-		int nFileSize = 0;
-		int nTime = 0;
-		if (0 != WebRtcNs_Create(&pNS_inst))
-		{
-			printf("Noise_Suppression WebRtcNs_Create err! \n");
-			break;
-		}
-
-		if (0 !=  WebRtcNs_Init(pNS_inst,nSample))
-		{
-			printf("Noise_Suppression WebRtcNs_Init err! \n");
-			break;
-		}
-
-		if (0 !=  WebRtcNs_set_policy(pNS_inst,nMode))
-		{
-			printf("Noise_Suppression WebRtcNs_set_policy err! \n");
-			break;
-		}
-
-		fpIn = fopen(szFileIn, "rb");
-		if (NULL == fpIn)
-		{
-			printf("open src file err \n");
-			break;
-		}
-		fseek(fpIn,0,SEEK_END);
-		nFileSize = ftell(fpIn); 
-		printf("nFileSize:% \n",nFileSize);
-
-		ProcessOption option;
-  		int sampleRate = 32000;  // OUT
-		size_t res = 0;
-		auto resampler = createReSamplerProcess(option);
-  		// res = resampler->process(in_buffer, in_size, out_buffer, out_size);
-
-		fseek(fpIn,0,SEEK_SET); 
-
-		pInBuffer = (char*)malloc(nFileSize);
-		memset(pInBuffer,0,nFileSize);
-		fread(pInBuffer, sizeof(char), nFileSize, fpIn);
-
-		pOutBuffer = (char*)malloc(nFileSize/48*32);
-		memset(pOutBuffer,0,nFileSize/48*32);
-
-		int  filter_state1[6],filter_state12[6];
-		int  Synthesis_state1[6],Synthesis_state12[6];
-
-		memset(filter_state1,0,sizeof(filter_state1));
-		memset(filter_state12,0,sizeof(filter_state12));
-		memset(Synthesis_state1,0,sizeof(Synthesis_state1));
-		memset(Synthesis_state12,0,sizeof(Synthesis_state12));
-
-		// nTime = GetTickCount();
-		nTime = 0;
-		for (i = 0;i < nFileSize;i+=960)
-		{
-			if (nFileSize - i >= 960)
-			{
-				short shBufferIn[480] = {0};
-				short shBufferInReSample[320] = {0};
-				short shInL[160],shInH[160];
-				short shOutL[160] = {0},shOutH[160] = {0};
-
-				memcpy(shBufferIn,(char*)(pInBuffer+i),480*sizeof(short));
-
-				res = resampler->process(shBufferIn, 480, shBufferInReSample, 320);
-				
-				//������Ҫʹ���˲���������Ƶ���ݷָߵ�Ƶ���Ը�Ƶ�͵�Ƶ�ķ�ʽ���뽵�뺯���ڲ�
-				WebRtcSpl_AnalysisQMF(shBufferIn,320,shInL,shInH,filter_state1,filter_state12);
-
-				//����Ҫ����������Ը�Ƶ�͵�Ƶ�����Ӧ�ӿڣ�ͬʱ��Ҫע�ⷵ������Ҳ�Ƿָ�Ƶ�͵�Ƶ
-				if (0 == WebRtcNs_Process(pNS_inst ,shInL  ,shInH ,shOutL , shOutH))
-				{
-					short shBufferOut[320];
-					//�������ɹ�������ݽ�����Ƶ�͵�Ƶ���ݴ����˲��ӿڣ�Ȼ���ý����ص�����д���ļ�
-					WebRtcSpl_SynthesisQMF(shOutL,shOutH,160,shBufferOut,Synthesis_state1,Synthesis_state12);
-					memcpy(pOutBuffer+i/48*32,shBufferOut,320*sizeof(short));
-				}
-			}	
-		}
-
-		// nTime = GetTickCount() - nTime;
-		nTime = 0;
-		printf("n_s user time=%dms\n",nTime);
-		fpOut = fopen(szFileOut, "wb");
-		if (NULL == fpOut)
-		{
-			printf("open out file err! \n");
-			break;
-		}
-		fwrite(pOutBuffer, sizeof(char), nFileSize/48*32, fpOut);
-	} while (0);
-
-	WebRtcNs_Free(pNS_inst);
-	fclose(fpIn);
-	fclose(fpOut);
-	free(pInBuffer);
-	free(pOutBuffer);
-}
-
-void NoiseSuppressionX32(char *szFileIn,char *szFileOut,int nSample,int nMode)
-{
-	int nRet = 0;
-	NsxHandle *pNS_inst = NULL;
-
-	FILE *fpIn = NULL;
-	FILE *fpOut = NULL;
-
-	char *pInBuffer =NULL;
-	char *pOutBuffer = NULL;
-
-	do
-	{
-		int i = 0;
-		int nFileSize = 0;
-		int nTime = 0;
-		if (0 != WebRtcNsx_Create(&pNS_inst))
-		{
-			printf("Noise_Suppression WebRtcNs_Create err! \n");
-			break;
-		}
-
-		if (0 !=  WebRtcNsx_Init(pNS_inst,nSample))
-		{
-			printf("Noise_Suppression WebRtcNs_Init err! \n");
-			break;
-		}
-
-		if (0 !=  WebRtcNsx_set_policy(pNS_inst,nMode))
-		{
-			printf("Noise_Suppression WebRtcNs_set_policy err! \n");
-			break;
-		}
-
-		fpIn = fopen(szFileIn, "rb");
-		if (NULL == fpIn)
-		{
-			printf("open src file err \n");
-			break;
-		}
-		fseek(fpIn,0,SEEK_END);
-		nFileSize = ftell(fpIn); 
-		printf("nFileSize:%d \n",nFileSize);
-		fseek(fpIn,0,SEEK_SET); 
-
-		pInBuffer = (char*)malloc(nFileSize);
-		memset(pInBuffer,0,nFileSize);
-		fread(pInBuffer, sizeof(char), nFileSize, fpIn);
-
-		pOutBuffer = (char*)malloc(nFileSize);
-		memset(pOutBuffer,0,nFileSize);
-
-		int  filter_state1[6],filter_state12[6];
-		int  Synthesis_state1[6],Synthesis_state12[6];
-
-		memset(filter_state1,0,sizeof(filter_state1));
-		memset(filter_state12,0,sizeof(filter_state12));
-		memset(Synthesis_state1,0,sizeof(Synthesis_state1));
-		memset(Synthesis_state12,0,sizeof(Synthesis_state12));
-
-		// nTime = GetTickCount();
-		nTime = 0;
-		for (i = 0;i < nFileSize;i+=640)
-		{
-			if (nFileSize - i >= 640)
-			{
-				short shBufferIn[320] = {0};
-
-				short shInL[160],shInH[160];
-				short shOutL[160] = {0},shOutH[160] = {0};
-
-				memcpy(shBufferIn,(char*)(pInBuffer+i),320*sizeof(short));
-				//������Ҫʹ���˲���������Ƶ���ݷָߵ�Ƶ���Ը�Ƶ�͵�Ƶ�ķ�ʽ���뽵�뺯���ڲ�
-				WebRtcSpl_AnalysisQMF(shBufferIn,320,shInL,shInH,filter_state1,filter_state12);
-
-				//����Ҫ����������Ը�Ƶ�͵�Ƶ�����Ӧ�ӿڣ�ͬʱ��Ҫע�ⷵ������Ҳ�Ƿָ�Ƶ�͵�Ƶ
-				if (0 == WebRtcNsx_Process(pNS_inst ,shInL  ,shInH ,shOutL , shOutH))
-				{
-					short shBufferOut[320];
-					//�������ɹ�������ݽ�����Ƶ�͵�Ƶ���ݴ����˲��ӿڣ�Ȼ���ý����ص�����д���ļ�
-					WebRtcSpl_SynthesisQMF(shOutL,shOutH,160,shBufferOut,Synthesis_state1,Synthesis_state12);
-					memcpy(pOutBuffer+i,shBufferOut,320*sizeof(short));
-				}
-			}	
-			//丢弃最后的frame不足640
-		}
-
-		// nTime = GetTickCount() - nTime;
-		nTime = 0;
-		printf("n_s user time=%dms\n",nTime);
-		fpOut = fopen(szFileOut, "wb");
-		if (NULL == fpOut)
-		{
-			printf("open out file err! \n");
-			break;
-		}
-		fwrite(pOutBuffer, sizeof(char), nFileSize, fpOut);
-	} while (0);
-
-	WebRtcNsx_Free(pNS_inst);
-	fclose(fpIn);
-	fclose(fpOut);
-	free(pInBuffer);
-	free(pOutBuffer);
-}
-
-void WebRtcAgcTest(char *filename, char *outfilename,int fs)
-{
-	FILE *infp      = NULL;
-	FILE *outfp     = NULL;
-
-	short *pData    = NULL;
-	short *pOutData = NULL;
-	void *agcHandle = NULL;	
-
-	do 
-	{
-		WebRtcAgc_Create(&agcHandle);
-
-		int minLevel = 0;
-		int maxLevel = 255;
-		int agcMode  = kAgcModeFixedDigital;
-		WebRtcAgc_Init(agcHandle, minLevel, maxLevel, agcMode, fs);
-
-		WebRtcAgc_config_t agcConfig;
-		agcConfig.compressionGaindB = 20;
-		agcConfig.limiterEnable     = 1;
-		agcConfig.targetLevelDbfs   = 3;
-		WebRtcAgc_set_config(agcHandle, agcConfig);
-
-		infp = fopen(filename,"rb");
-		int frameSize = 80;
-		pData    = (short*)malloc(frameSize*sizeof(short));
-		pOutData = (short*)malloc(frameSize*sizeof(short));
-
-		outfp = fopen(outfilename,"wb");
-		int len = frameSize*sizeof(short);
-		int micLevelIn = 0;
-		int micLevelOut = 0;
-		while(1)
-		{
-			memset(pData, 0, len);
-			len = fread(pData, 1, len, infp);
-			if (len > 0)
-			{
-				int inMicLevel  = micLevelOut;
-				int outMicLevel = 0;
-				uint8_t saturationWarning;
-				int nAgcRet = WebRtcAgc_Process(agcHandle, pData, NULL, frameSize, pOutData,NULL, inMicLevel, &outMicLevel, 0, &saturationWarning);
-				if (nAgcRet != 0)
-				{
-					printf("failed in WebRtcAgc_Process\n");
-					break;
-				}
-				micLevelIn = outMicLevel;
-				fwrite(pOutData, 1, len, outfp);
-			}
-			else
-			{
-				break;
-			}
-		}
-	} while (0);
-
-	fclose(infp);
-	fclose(outfp);
-	free(pData);
-	free(pOutData);
-	WebRtcAgc_Free(agcHandle);
-}
-
-int WebRtcAecTest()
-{
-	#define  NN 160
-	short far_frame[NN];
-	short near_frame[NN];
-	// float near_frame[NN];
-	short out_frame[NN];
-
-
-	void *aecmInst = NULL;
-	FILE *fp_far  = fopen("speaker.pcm", "rb");
-	FILE *fp_near = fopen("micin.pcm", "rb");
-	FILE *fp_out  = fopen("out.pcm", "wb");
-
-	do 
-	{
-		if(!fp_far)
-		{
-			printf("WebRtcAecTest open speaker.pcm file err \n");
-			break;
-		}
-		if(!fp_near)
-		{
-			printf("WebRtcAecTest open micin.pcm file err \n");
-			break;
-		}
-		if(!fp_out)
-		{
-			printf("WebRtcAecTest open out.pcm file err \n");
-			break;
-		}
-
-		WebRtcAec_Create(&aecmInst);
-		WebRtcAec_Init(aecmInst, 8000, 8000);
-
-		AecConfig config;
-		config.nlpMode = kAecNlpConservative;
-		WebRtcAec_set_config(aecmInst, config);
-
-		while(1)
-		{
-			if (NN == fread(far_frame, sizeof(short), NN, fp_far))
-			{
-				fread(near_frame, sizeof(short), NN, fp_near);
-
-				WebRtcAec_BufferFarend(aecmInst, far_frame, NN);//�Բο�����(����)�Ĵ���
-
-
-				WebRtcAec_Process(aecmInst, near_frame, NULL, out_frame, NULL, NN,40,0);//��������
-
-				fwrite(out_frame, sizeof(short), NN, fp_out);
-			}
-			else
-			{
-				break;
-			}
-		}
-	} while (0);
-
-	fclose(fp_far);
-	fclose(fp_near);
-	fclose(fp_out);
-	WebRtcAec_Free(aecmInst);
-	return 0;
-}
-
-
-void resamplerTO32(char *szFileIn,char *szFileOut)
-{
-	int nFileSize = 0;
-	FILE *fpIn = NULL;
-	FILE *fpOut = NULL;
-	char *pInBuffer = NULL;
-	char *pOutBuffer = NULL;
-	fpIn = fopen(szFileIn, "rb");
-	if (NULL == fpIn)
-	{
-		printf("open src file err \n");
-	}
-	fseek(fpIn, 0, SEEK_END);
-	nFileSize = ftell(fpIn);
-	printf("nFileSize:% \n", nFileSize);
-
-	ProcessOption option;
-  	int sampleRate = 3200;  // OUT
-	size_t res = 0;
-	auto resampler = createReSamplerProcess(option);
-	// res = resampler->process(in_buffer, in_size, out_buffer, out_size);
-
-	fseek(fpIn, 0, SEEK_SET);
-
-	pInBuffer = (char *)malloc(nFileSize);
-	memset(pInBuffer, 0, nFileSize);
-	fread(pInBuffer, sizeof(char), nFileSize, fpIn);
-
-	pOutBuffer = (char *)malloc(nFileSize / 8 * 32);
-	memset(pOutBuffer, 0, nFileSize / 8 * 32);
-	int i=0;
-	for (i = 0;i < nFileSize;i+=160)
-	{
-			if (nFileSize - i >= 160)
-			{
-				short shBufferIn[80] = {0};
-				short shBufferOut[320] = {0};
-				memcpy(shBufferIn,(char*)(pInBuffer+i),80*sizeof(short));
-				res = resampler->process(shBufferIn, 80, shBufferOut, 320);	
-				memcpy(pOutBuffer+i/8*32,shBufferOut,320*sizeof(short));
-			}	
-	}
-
-	fpOut = fopen(szFileOut, "wb");
-	if (NULL == fpOut)
-	{
-		printf("open out file err! \n");
-	}
-	fwrite(pOutBuffer, sizeof(char), nFileSize / 8 * 32, fpOut);
-	fclose(fpIn);
-	fclose(fpOut);
-	free(pInBuffer);
-	free(pOutBuffer);
- }
-
-int main(int argc, char* argv[])
-{
-	resamplerTO32("/home/fengmao/cowa/webRTCtest/build/byby_8K_1C_16bit.pcm.32k.pcm","/home/fengmao/cowa/webRTCtest/build/byby_8K_1C_16bit.pcm");
-	// WebRtcAecTest();
-	// WebRtcAgcTest("byby_8K_1C_16bit.pcm","byby_8K_1C_16bit_agc.pcm",8000);
-	//NoiseSuppression32("capture.pcm","capture.pcm_ns.pcm",32000,1);
-	// NoiseSuppression32("lhydd_1C_16bit_32K.pcm","lhydd_1C_16bit_32K_ns.pcm",32000,1);
-
-	// NoiseSuppressionX32("lhydd_1C_16bit_32K.pcm","lhydd_1C_16bit_32K_nsx.pcm",32000,1);
-
-	printf("�������棬�������...\n");
-	return 0;
-}
 
+ #include <cmath>
+#include <fstream>
+#include <getopt.h>
+#include <iostream>
+#include <sys/stat.h>
+#include <sys/types.h>
+
+
+ void resamplerTO322(char *szFileIn,char *szFileOut)
+ {
+  std::ifstream in_stream;
+  in_stream.open(szFileIn, std::ios::in | std::ios::binary);
+  std::ofstream out_stream;
+  out_stream.open(szFileOut, std::ios::out | std::ios::binary);
+
+  int in_size = 1024 * 2 * 15;
+  unsigned char* in_buffer = (unsigned char*)malloc(in_size);
+
+  unsigned int out_size = in_size /48*32;
+  unsigned char* out_buffer = (unsigned char*)malloc(out_size);
+
+  ProcessOption option;
+  // wav or pcm
+  in_stream.read((char*)in_buffer, 44);
+  if (in_buffer[0] == 'R' && in_buffer[1] == 'I' && in_buffer[2] == 'F' && in_buffer[3] == 'F') {
+    // wav
+    in_stream.seekg(44, std::ios_base::beg);
+  } else {
+    in_stream.seekg(0, std::ios_base::beg);
+  }
+
+  auto resampler = createReSamplerProcess(option);
+  int index = 0;
+  size_t res = 0;
+  do {
+    in_stream.read((char*)in_buffer, in_size);
+    // auto preprocess = createANSProcess(option);
+    // size_t res = preprocess->process(in_buffer, in_size, out_buffer, out_size);
+    in_size = in_stream.gcount();
+    res = resampler->process(in_buffer, in_size, out_buffer, out_size);
+    std::cout << "process index: " << index++ << " insize: " << in_size << " outsize:" << out_size << " res: " << res
+              << std::endl;
+    out_stream.write((char*)out_buffer, res*2);
+  } while (in_stream && !in_stream.eof());
+
+  if (in_buffer) free(in_buffer);
+  if (out_buffer) free(out_buffer);
+  }
+  void resampler32NSX(char *szFileIn,  char *szFileOut, char *szFileOut2, int nSample, int nMode)
+  {
+	  std::ifstream in_stream;
+	  in_stream.open(szFileIn, std::ios::in | std::ios::binary);
+	  std::ofstream out_stream;
+	  out_stream.open(szFileOut, std::ios::out | std::ios::binary);
+	  std::ofstream out_stream2;
+	  out_stream2.open(szFileOut2, std::ios::out | std::ios::binary);
+
+	  int in_size = 960;
+	  unsigned char *in_buffer = (unsigned char *)malloc(in_size);
+
+	  unsigned int out_size = in_size * 32 / 48;
+	  unsigned char *out_buffer = (unsigned char *)malloc(out_size);
+	  unsigned char *resample_buffer = (unsigned char *)malloc(out_size);
+	  ProcessOption option;
+	  // wav or pcm
+	  in_stream.read((char *)in_buffer, 44);
+	  if (in_buffer[0] == 'R' && in_buffer[1] == 'I' && in_buffer[2] == 'F' && in_buffer[3] == 'F')
+	  {
+		  // wav
+		  in_stream.seekg(44, std::ios_base::beg);
+	  }
+	  else
+	  {
+		  in_stream.seekg(0, std::ios_base::beg);
+	  }
+
+	  int filter_state1[6], filter_state12[6];
+	  int Synthesis_state1[6], Synthesis_state12[6];
+
+	  NsxHandle *pNS_inst = NULL;
+	  if (0 != WebRtcNsx_Create(&pNS_inst))
+	  {
+		  printf("Noise_Suppression WebRtcNs_Create err! \n");
+	  }
+
+	  if (0 != WebRtcNsx_Init(pNS_inst, nSample))
+	  {
+		  printf("Noise_Suppression WebRtcNs_Init err! \n");
+	  }
+
+	  if (0 != WebRtcNsx_set_policy(pNS_inst, nMode))
+	  {
+		  printf("Noise_Suppression WebRtcNs_set_policy err! \n");
+	  }
+
+	  memset(filter_state1, 0, sizeof(filter_state1));
+	  memset(filter_state12, 0, sizeof(filter_state12));
+	  memset(Synthesis_state1, 0, sizeof(Synthesis_state1));
+	  memset(Synthesis_state12, 0, sizeof(Synthesis_state12));
+
+	  auto resampler = createReSamplerProcess(option);
+	  int index = 0;
+	  size_t res = 0;
+	  do
+	  {
+		  in_stream.read((char *)in_buffer, in_size);
+
+		  in_size = in_stream.gcount();
+ 	
+     if(in_size<960)
+    {
+      break;
+    }
+      res = resampler->process(in_buffer, in_size, resample_buffer, out_size);
+	  std::cout << "process index: " << index++ << " insize: " << in_size << " outsize:" << out_size << " res: " << res
+					<< std::endl;
+      
+	 out_stream.write((char *)resample_buffer, res * 2);
+		  short shBufferIn[320] = {0};
+		  short shInL[160]= {0}, shInH[160]= {0};
+		  short shOutL[160] = {0}, shOutH[160] = {0};
+  		  short shBufferOut[320]= {0};
+		 memcpy(shBufferIn, resample_buffer, res*2);
+
+
+
+		  //������Ҫʹ���˲���������Ƶ���ݷָߵ�Ƶ���Ը�Ƶ�͵�Ƶ�ķ�ʽ���뽵�뺯���ڲ�
+		  WebRtcSpl_AnalysisQMF(shBufferIn, 320, shInL, shInH, filter_state1, filter_state12);
+
+		  //����Ҫ����������Ը�Ƶ�͵�Ƶ�����Ӧ�ӿڣ�ͬʱ��Ҫע�ⷵ������Ҳ�Ƿָ�Ƶ�͵�Ƶ
+		  if (0 == WebRtcNsx_Process(pNS_inst, shInL, shInH, shOutL, shOutH))
+		  {
+			
+			  //�������ɹ�������ݽ�����Ƶ�͵�Ƶ���ݴ����˲��ӿڣ�Ȼ���ý����ص�����д���ļ�
+			  WebRtcSpl_SynthesisQMF(shOutL, shOutH, 160, shBufferOut, Synthesis_state1, Synthesis_state12);
+			  
+		  }
+
+
+
+		  out_stream2.write((char *)shBufferOut, res * 2);
+	  } while (in_stream && !in_stream.eof());
+
+		  if (in_buffer)
+			  free(in_buffer);
+		  if (out_buffer)
+			  free(out_buffer);
+
+		 WebRtcNsx_Free(pNS_inst);
+	  }
+	  int main(int argc, char *argv[])
+	  {
+		  resampler32NSX("/home/fengmao/cowa/webRTCtest/build/capture.pcm", "/home/fengmao/cowa/webRTCtest/build/capture_32k.pcm", "/home/fengmao/cowa/webRTCtest/build/capture_32k_NS.pcm", 32000, 2);
+		  // // WebRtcAecTest();
+		  // //WebRtcAgcTest("byby_8K_1C_16bit.pcm","byby_8K_1C_16bit_agc.pcm",8000);
+		  // NoiseSuppression32("output.pcm","output.pcm_ns.pcm",32000,2);
+
+		  //NoiseSuppression32("capture.pcm", "capture.pcm_ns.pcm", 32000, 2);
+
+		  // // NoiseSuppression32("lhydd_1C_16bit_32K.pcm","lhydd_1C_16bit_32K_ns.pcm",32000,1);
+
+		  // NoiseSuppressionX32("capture.pcm","capture.pcm_ns_error.pcm",32000,2);
+		  // NoiseSuppressionX32("capture_32k_ffmpeg.pcm","capture_32k_ffmpeg_ns.pcm",32000,2);
+		  printf("�������棬�������...\n");
+		  return 0;
+	  }

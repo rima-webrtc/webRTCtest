@@ -1,6 +1,9 @@
 cmake_minimum_required(VERSION 2.8)
 PROJECT(webRTCLIB)
 
+SET(CMAKE_BUILD_TYPE "Debug")
+SET(CMAKE_CXX_FLAGS_DEBUG "-Wall -g -ggdb ")
+
 AUX_SOURCE_DIRECTORY(. DIR_SRCS)
 SET(DIR_HEADERS analog_agc.h complex_fft_tables.h cpu_features_wrapper.h defines.h digital_agc.h 
 		fft4g.h gain_control.h noise_suppression.h noise_suppression_x.h ns_core.h 			nsx_core.h nsx_defines.h real_fft.h resample_by_2_internal.h ring_buffer.h 			signal_processing_library.h spl_inl.h typedefs.h windows_private.h aec_core.h 
