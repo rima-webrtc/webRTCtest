@@ -150,6 +150,33 @@ WebRtcAudioTest.cpp.s:
 	$(MAKE) -f CMakeFiles/webRTCtest.dir/build.make CMakeFiles/webRTCtest.dir/WebRtcAudioTest.cpp.s
 .PHONY : WebRtcAudioTest.cpp.s
 
+preprocess.o: preprocess.cc.o
+
+.PHONY : preprocess.o
+
+# target to build an object file
+preprocess.cc.o:
+	$(MAKE) -f CMakeFiles/webRTCtest.dir/build.make CMakeFiles/webRTCtest.dir/preprocess.cc.o
+.PHONY : preprocess.cc.o
+
+preprocess.i: preprocess.cc.i
+
+.PHONY : preprocess.i
+
+# target to preprocess a source file
+preprocess.cc.i:
+	$(MAKE) -f CMakeFiles/webRTCtest.dir/build.make CMakeFiles/webRTCtest.dir/preprocess.cc.i
+.PHONY : preprocess.cc.i
+
+preprocess.s: preprocess.cc.s
+
+.PHONY : preprocess.s
+
+# target to generate assembly for a file
+preprocess.cc.s:
+	$(MAKE) -f CMakeFiles/webRTCtest.dir/build.make CMakeFiles/webRTCtest.dir/preprocess.cc.s
+.PHONY : preprocess.cc.s
+
 resampler.o: resampler.cc.o
 
 .PHONY : resampler.o
@@ -216,6 +243,9 @@ help:
 	@echo "... WebRtcAudioTest.o"
 	@echo "... WebRtcAudioTest.i"
 	@echo "... WebRtcAudioTest.s"
+	@echo "... preprocess.o"
+	@echo "... preprocess.i"
+	@echo "... preprocess.s"
 	@echo "... resampler.o"
 	@echo "... resampler.i"
 	@echo "... resampler.s"

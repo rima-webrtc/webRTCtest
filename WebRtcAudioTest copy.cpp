@@ -28,9 +28,15 @@ void resampler32NSX(char* szFileIn, char* szFileOut, char* szFileOut2, int nSamp
   out_stream2.open(szFileOut2, std::ios::out | std::ios::binary);
 
   int in_size = 960;
-  unsigned char* in_buffer = (unsigned char*)malloc(in_size);
-  unsigned char* out_buffer = (unsigned char*)malloc(in_size);
-  unsigned int ans_size = in_size * 32 / 48;
+  int in_size_fix = 0;
+  // int in_size = 1024*2*2;
+  if (in_size % 960 != 0)
+    in_size_fix = (in_size / 960 + 1) * 960;
+  else
+    in_size_fix = in_size;
+  unsigned char* in_buffer = (unsigned char*)malloc(in_size_fix);
+  unsigned char* out_buffer = (unsigned char*)malloc(in_size_fix);
+  unsigned int ans_size = in_size_fix * 32 / 48;
   unsigned char* ans_buffer = (unsigned char*)malloc(ans_size);
   unsigned char* resample_buffer = (unsigned char*)malloc(ans_size);
   ProcessOption option;
@@ -65,18 +71,18 @@ void resampler32NSX(char* szFileIn, char* szFileOut, char* szFileOut2, int nSamp
 
     gcount_size = in_stream.gcount();
 
-    if (gcount_size < 960) { memset(in_buffer + gcount_size, 0, 960 - gcount_size); }
+    if (gcount_size%960 < 960) { memset(in_buffer + gcount_size, 0, in_size_fix - gcount_size); }
 
-    res = resampler_in->process(in_buffer, in_size, resample_buffer, ans_size);
-    //std::cout << "process index: " << index++ << " insize: " << in_size << " outsize:" << ans_size << " res: " << res
-     //         << std::endl;
+    res = resampler_in->process(in_buffer, in_size_fix, resample_buffer, ans_size);
+    std::cout << "process index: " << index++ << " insize: " << in_size << " outsize:" << ans_size << " res: " << res
+             << std::endl;
 
     res = ans->process(resample_buffer, ans_size, ans_buffer, ans_size);
 
-    res = resampler_out->process(out_buffer, ans_size, out_buffer, in_size);
+    res = resampler_out->process(out_buffer, ans_size, out_buffer, in_size_fix);
 
-    //std::cout << "process index: " << index++ << " insize: " << ans_size << " outsize:" << in_size << " res: " << res
-     //         << std::endl;
+    std::cout << "process index: " << index++ << " insize: " << ans_size << " outsize:" << in_size << " res: " << res
+             << std::endl;
 
     out_stream2.write((char*)out_buffer, gcount_size);
   } while (in_stream && !in_stream.eof());
