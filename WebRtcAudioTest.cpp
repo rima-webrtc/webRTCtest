@@ -27,10 +27,17 @@ void resampler32NSX(char* szFileIn, char* szFileOut, char* szFileOut2, int nSamp
   std::ofstream out_stream2;
   out_stream2.open(szFileOut2, std::ios::out | std::ios::binary);
 
-  int in_size = 960;
-  unsigned char* in_buffer = (unsigned char*)malloc(in_size);
-  unsigned char* out_buffer = (unsigned char*)malloc(in_size);
-  unsigned int ans_size = in_size * 32 / 48;
+ int in_size = 1024*2*2;
+  //int in_size = 960;
+  int in_size_fix = 0;
+
+  if (in_size % 960 != 0)
+    in_size_fix = (in_size / 960 + 1) * 960;
+  else
+    in_size_fix = in_size;
+  unsigned char* in_buffer = (unsigned char*)malloc(in_size_fix);
+  unsigned char* out_buffer = (unsigned char*)malloc(in_size_fix);
+  unsigned int ans_size = in_size_fix * 32 / 48;
   unsigned char* ans_buffer = (unsigned char*)malloc(ans_size);
   unsigned char* resample_buffer = (unsigned char*)malloc(ans_size);
   ProcessOption option;
@@ -65,20 +72,20 @@ void resampler32NSX(char* szFileIn, char* szFileOut, char* szFileOut2, int nSamp
 
     gcount_size = in_stream.gcount();
 
-    if (gcount_size < 960) { memset(in_buffer + gcount_size, 0, 960 - gcount_size); }
+    if (gcount_size%960 < 960) { memset(in_buffer + gcount_size, 0, in_size_fix - gcount_size); }
 
-    res = resampler_in->process(in_buffer, in_size, resample_buffer, ans_size);
-    std::cout << "process index: " << index++ << " insize: " << in_size << " outsize:" << ans_size << " res: " << res
+    res = resampler_in->process(in_buffer, in_size_fix, resample_buffer, ans_size);
+    std::cout << "process index: " << index++ << " insize: " << in_size <<  " in_size_fix: " << in_size_fix << " outsize:" << ans_size << " res: " << res
              << std::endl;
-
+    out_stream.write((char*)resample_buffer, gcount_size*32/48);
     res = ans->process(resample_buffer, ans_size, ans_buffer, ans_size);
-        out_stream.write((char*)ans_buffer, gcount_size*32/48);
-    res = resampler_out->process(ans_buffer, ans_size, out_buffer, in_size);
+    out_stream2.write((char*)resample_buffer, gcount_size*32/48);
+    res = resampler_out->process(ans_buffer, ans_size, out_buffer, in_size_fix);
 
-    std::cout << "process index: " << index++ << " insize: " << ans_size << " outsize:" << in_size << " res: " << res
+    std::cout << "process index: " << index++ << " insize: " << ans_size<<  " outsize:" << in_size << " res: " << res
              << std::endl;
 
-    out_stream2.write((char*)out_buffer, gcount_size);
+    //out_stream2.write((char*)out_buffer, gcount_size);
   } while (in_stream && !in_stream.eof());
 
   if (in_buffer) free(in_buffer);
@@ -88,7 +95,7 @@ void resampler32NSX(char* szFileIn, char* szFileOut, char* szFileOut2, int nSamp
 int main(int argc, char* argv[]) {
   resampler32NSX("/home/fengmao/cowa/webRTCtest/build/capture.pcm",
                  "/home/fengmao/cowa/webRTCtest/build/capture_32k.pcm",
-                 "/home/fengmao/cowa/webRTCtest/build/capture_32k_NS.pcm", 32000, 2);
+                 "/home/fengmao/cowa/webRTCtest/build/capture_48k_NS.pcm", 32000, 2);
 
   printf("�������棬�������...\n");
   return 0;
