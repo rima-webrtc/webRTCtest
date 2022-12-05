@@ -8,15 +8,18 @@
  *  be found in the AUTHORS file in the root of the source tree.
  */
 
-#ifndef WEBRTC_SYSTEM_WRAPPERS_INTERFACE_COMPILE_ASSERT_H_
-#define WEBRTC_SYSTEM_WRAPPERS_INTERFACE_COMPILE_ASSERT_H_
+#ifndef RTC_BASE_COMPILE_ASSERT_C_H_
+#define RTC_BASE_COMPILE_ASSERT_C_H_
 
-// Only use this for C files. For C++, use compile_assert.h.
-//
 // Use this macro to verify at compile time that certain restrictions are met.
 // The argument is the boolean expression to evaluate.
 // Example:
-//   COMPILE_ASSERT(sizeof(foo) < 128);
-#define COMPILE_ASSERT(expression) switch (0) {case 0: case expression:;}
+//   RTC_COMPILE_ASSERT(sizeof(foo) < 128);
+// Note: In C++, use static_assert instead!
+#define RTC_COMPILE_ASSERT(expression) \
+  switch (0) {                         \
+    case 0:                            \
+    case expression:;                  \
+  }
 
-#endif  // WEBRTC_SYSTEM_WRAPPERS_INTERFACE_COMPILE_ASSERT_H_
+#endif  // RTC_BASE_COMPILE_ASSERT_C_H_
