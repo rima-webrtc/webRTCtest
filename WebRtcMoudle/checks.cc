@@ -14,24 +14,24 @@
 #include <cstdarg>
 #include <cstdio>
 #include <cstdlib>
-#include "checks.h"	// 2018Äê12ÔÂ5ÈÕ14:24:15
-#if defined(WEBRTC_ANDROID)
-#define RTC_LOG_TAG_ANDROID "rtc"
-#include <android/log.h>  // NOLINT
-#endif
+#include "checks.h"	// 2018ï¿½ï¿½12ï¿½ï¿½5ï¿½ï¿½14:24:15
+// #if defined(WEBRTC_ANDROID)
+// #define RTC_LOG_TAG_ANDROID "rtc"
+// #include <android/log.h>  // NOLINT
+// #endif
 
-#if defined(WEBRTC_WIN)
-#include <windows.h>
-#endif
+// #if defined(WEBRTC_WIN)
+// #include <windows.h>
+// #endif
 
-#if defined(WEBRTC_WIN)
-#define LAST_SYSTEM_ERROR (::GetLastError())
-#elif defined(__native_client__) && __native_client__
-#define LAST_SYSTEM_ERROR (0)
-#elif defined(WEBRTC_POSIX)
+// #if defined(WEBRTC_WIN)
+// #define LAST_SYSTEM_ERROR (::GetLastError())
+// #elif defined(__native_client__) && __native_client__
+// #define LAST_SYSTEM_ERROR (0)
+// #elif defined(WEBRTC_POSIX)
 #include <errno.h>
 #define LAST_SYSTEM_ERROR (errno)
-#endif  // WEBRTC_WIN
+// #endif  // WEBRTC_WIN
 
 //#include "rtc_base/checks.h"
 //#include "checks.h"
@@ -117,7 +117,7 @@ RTC_NORETURN void FatalLog(const char* file,
   va_start(args, fmt);
 
   std::string s;
-   //2018Äê12ÔÂ5ÈÕ14:19:43
+   //2018ï¿½ï¿½12ï¿½ï¿½5ï¿½ï¿½14:19:43
   AppendFormat(&s,
                "\n\n"
                "#\n"
