@@ -86,7 +86,7 @@ void resampler32NSX(char* szFileIn, char* szFileOut, char* szFileOut2, int nSamp
   if (ans_buffer) free(ans_buffer);
 }
 int main(int argc, char* argv[]) {
-  resampler32NSX("/home/fengmao/cowa/webRTCtest/build/capture.pcm",
+  resampler32NSX("/home/fengmao/cowa/webRTCtest/capture.pcm",
                  "/home/fengmao/cowa/webRTCtest/build/capture_32k.pcm",
                  "/home/fengmao/cowa/webRTCtest/build/capture_32k_NS.pcm", 32000, 2);
 

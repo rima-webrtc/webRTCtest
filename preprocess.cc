@@ -56,7 +56,6 @@ class ANSProcess : public IPreProcesss {
   /// @param out_len every output frame length
   /// @return
   size_t process(void const* input, size_t in_len, void* output, size_t out_len) override {
-       std::cout <<"processstart\n";
     // 32hz will be cut to 2 16000 to handle.
     if (_option.sampleRate_in == 32000) {
     int16_t* ansIn = (int16_t*)input;
@@ -73,7 +72,6 @@ class ANSProcess : public IPreProcesss {
         WebRtcSpl_SynthesisQMF(shOutL, shOutH, 160, shBufferOut, Synthesis_state1, Synthesis_state12);
       }
       memcpy(ansOut, shBufferOut, out_len);
-std::cout <<"11111\n";
     } else {
       std::cout << "need to be finished. ns,nsx only support 8hz,16hz,32hz.every time do with 10ms.it is one frame "
                 << std::endl;
