@@ -63,7 +63,7 @@ void resampler32NSX(char* szFileIn, char* szFileOut, int nSample, int nMode) {
 
     for (int i = 0; i < count_in;i++)
     {
-   std::cout <<"start\n";
+
       res = ans->process(input_ptr, frame_size, output_ptr, frame_size);
 
       std::cout << "process index: " << index++ << " insize: " << in_size << " outsize:" << ans_size << " res: " << res
